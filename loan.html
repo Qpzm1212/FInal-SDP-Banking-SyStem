@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Кредиты - Banking System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">GoBank System</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Дашборд</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/loan.html">Кредиты</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h3>Оформление кредита (Builder Pattern)</h3>
+    <form id="loanForm" class="col-md-5">
+        <input type="text" id="borrower" class="form-control mb-3" placeholder="Имя заемщика" required>
+        <input type="number" id="loanAmount" class="form-control mb-3" placeholder="Сумма кредита" required>
+        <button type="submit" class="btn btn-success">Сгенерировать договор</button>
+    </form>
+    <pre id="loanResult" class="mt-4 p-3 bg-dark text-white rounded" style="display:none;"></pre>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
