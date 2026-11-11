@@ -1,0 +1,85 @@
+<svg viewBox="0 0 920 480" width="100%" xmlns="http://www.w3.org/2000/svg" style="font-family: 'Segoe UI', Arial, sans-serif;">
+  <defs>
+    <marker id="a-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="920" height="480" fill="#fcfdff" stroke="#e2e8f0" rx="8"/>
+  <text x="460" y="28" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">System Architecture &amp; Data Schema Overview</text>
+
+  <!-- Left Side: Layered Architecture -->
+  <rect x="24" y="48" width="520" height="408" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="284" y="72" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1e3a8a">Layered Backend &amp; SPA Architecture</text>
+
+  <!-- Browser SPA -->
+  <rect x="64" y="92" width="440" height="58" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.4"/>
+  <text x="284" y="114" text-anchor="middle" font-size="12" font-weight="700" fill="#1e3a8a">Presentation Layer: Single-Page App (web/index.html)</text>
+  <text x="284" y="134" text-anchor="middle" font-size="10.5" fill="#334155">Hash Router (#login, #home, #accounts, #transfer, #loan, #calc) | Fetch API</text>
+
+  <line x1="284" y1="150" x2="284" y2="176" stroke="#334155" stroke-width="1.5" marker-end="url(#a-arr)"/>
+  <text x="360" y="167" font-size="9.5" fill="#475569">HTTP JSON / Form</text>
+
+  <!-- Echo API -->
+  <rect x="64" y="178" width="440" height="56" rx="6" fill="#ffffff" stroke="#475569" stroke-width="1.4"/>
+  <text x="284" y="200" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">HTTP Transport Layer: Echo Server (cmd/api/main.go :8080)</text>
+  <text x="284" y="218" text-anchor="middle" font-size="10.5" fill="#334155">Routes (/api/*), Parameter Parsing (parseNumber), Error Mapping (errStatus)</text>
+
+  <line x1="284" y1="234" x2="284" y2="260" stroke="#334155" stroke-width="1.5" marker-end="url(#a-arr)"/>
+
+  <!-- BankFacade -->
+  <rect x="64" y="262" width="440" height="52" rx="6" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="284" y="284" text-anchor="middle" font-size="12" font-weight="700" fill="#1e3a8a">Service Layer: BankFacade (internal/service/facade.go)</text>
+  <text x="284" y="301" text-anchor="middle" font-size="10.5" fill="#334155">OpenAccount | Transfer | ApplyForLoan | CalculateYield | ListAccounts/Tx</text>
+
+  <!-- Arrows to Patterns and DB -->
+  <line x1="175" y1="314" x2="175" y2="342" stroke="#334155" stroke-width="1.4" marker-end="url(#a-arr)"/>
+  <line x1="395" y1="314" x2="395" y2="342" stroke="#334155" stroke-width="1.4" marker-end="url(#a-arr)"/>
+
+  <!-- Patterns Box -->
+  <rect x="44" y="344" width="256" height="92" rx="6" fill="#fefce8" stroke="#ca8a04" stroke-width="1.4"/>
+  <text x="172" y="364" text-anchor="middle" font-size="11.5" font-weight="700" fill="#854d0e">Domain Patterns (internal/patterns)</text>
+  <text x="58" y="383" font-size="10" fill="#1e293b">- Factory Method &amp; Caps (factory.go)</text>
+  <text x="58" y="398" font-size="10" fill="#1e293b">- Loan Builder &amp; Policy (builder.go)</text>
+  <text x="58" y="413" font-size="10" fill="#1e293b">- Interest Strategies (strategy.go)</text>
+  <text x="58" y="428" font-size="10" fill="#1e293b">- Observer AML+Velocity (observer.go)</text>
+
+  <!-- Singleton DB Box -->
+  <rect x="316" y="344" width="210" height="92" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.4"/>
+  <text x="421" y="364" text-anchor="middle" font-size="11.5" font-weight="700" fill="#14532d">LedgerStore (internal/db)</text>
+  <text x="328" y="384" font-size="10" fill="#1e293b">- Singleton (sync.Once)</text>
+  <text x="328" y="400" font-size="10" fill="#1e293b">- Credit Limit &amp; RWMutex</text>
+  <text x="328" y="416" font-size="10" fill="#1e293b">- Atomic write (.tmp -&gt; .json)</text>
+  <text x="328" y="430" font-size="10" fill="#1e293b">- data/database.json</text>
+
+  <!-- Right Side: Data Schema -->
+  <rect x="564" y="48" width="332" height="408" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="730" y="72" text-anchor="middle" font-size="12.5" font-weight="700" fill="#0f172a">JSON Database Schema (models/data.go)</text>
+
+  <!-- AccountData -->
+  <rect x="584" y="92" width="292" height="104" rx="6" fill="#ffffff" stroke="#475569" stroke-width="1.3"/>
+  <line x1="584" y1="116" x2="876" y2="116" stroke="#475569"/>
+  <text x="730" y="108" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">accounts[id] : AccountData</text>
+  <text x="596" y="133" font-size="10" fill="#1e293b">id : string (PK, 2-24 chars)</text>
+  <text x="596" y="147" font-size="10" fill="#1e293b">type : "checking" | "savings" | "credit"</text>
+  <text x="596" y="161" font-size="10" fill="#1e293b">balance : float64 | credit_limit : float64</text>
+  <text x="596" y="175" font-size="10" fill="#1e293b">created_at : time.Time (RFC3339)</text>
+
+  <!-- TransactionRecord -->
+  <rect x="584" y="208" width="292" height="118" rx="6" fill="#ffffff" stroke="#475569" stroke-width="1.3"/>
+  <line x1="584" y1="232" x2="876" y2="232" stroke="#475569"/>
+  <text x="730" y="224" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">transactions[acc_id][] : TransactionRecord</text>
+  <text x="596" y="249" font-size="10" fill="#1e293b">account_id : string (FK -&gt; AccountData.id)</text>
+  <text x="596" y="263" font-size="10" fill="#1e293b">name : string | amount : float64 (&gt; 0)</text>
+  <text x="596" y="277" font-size="10" fill="#1e293b">income : bool | suspicious : bool</text>
+  <text x="596" y="291" font-size="10" fill="#1e293b">reason : string (AML/velocity rule tag)</text>
+  <text x="596" y="305" font-size="10" fill="#1e293b">date : time.Time (RFC3339)</text>
+
+  <!-- LoanData -->
+  <rect x="584" y="336" width="292" height="104" rx="6" fill="#ffffff" stroke="#475569" stroke-width="1.3"/>
+  <line x1="584" y1="360" x2="876" y2="360" stroke="#475569"/>
+  <text x="730" y="352" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">loans[key] : LoanData</text>
+  <text x="596" y="378" font-size="10" fill="#1e293b">number : string ("LN-######")</text>
+  <text x="596" y="393" font-size="10" fill="#1e293b">borrower : string | amount : float64</text>
+  <text x="596" y="408" font-size="10" fill="#1e293b">rate : float64 (15.0) | months : int (12)</text>
+  <text x="596" y="423" font-size="10" fill="#1e293b">monthly : float64 | total : float64</text>
+</svg>

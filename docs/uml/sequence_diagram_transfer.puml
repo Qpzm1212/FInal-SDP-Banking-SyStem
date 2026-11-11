@@ -1,0 +1,26 @@
+@startuml
+title Transfer Operation: POST /api/transaction
+
+actor Client
+participant "main.go (Echo)" as API
+participant BankFacade as F
+participant LedgerStore as DB
+participant TransactionMonitor as M
+participant FraudDetector as FD
+participant AuditLogger as AL
+participant SecurityTeamAlert as ST
+
+Client -> API : POST /api/transaction (account_id, amount)
+API -> F : Transfer(accID, amount)
+F -> DB : GetAccount(accID)
+DB --> F : account, balance & cap check
+F -> M : ProcessTransaction(amount, accID)
+M -> FD : 1. Update(event) [AML & velocity]
+M -> AL : 2. Update(event) -> [AUDIT]
+M -> ST : 3. Update(event) -> [ALERT] if Suspicious
+M --> F : event (Suspicious, Reason)
+F -> DB : ApplyDebit(entry)
+DB --> F : newBalance
+F --> API : TransferResult
+API --> Client : 200 OK JSON (status, suspicious, balance)
+@enduml

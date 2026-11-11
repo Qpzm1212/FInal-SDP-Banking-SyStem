@@ -1,0 +1,99 @@
+@startuml
+title Banking System: Overall Class Diagram
+
+class BankFacade {
+  +OpenAccount(accType, accID)
+  +Transfer(accID, amount)
+  +ApplyForLoan(borrower, amount)
+  +CalculateYield(accType, balance)
+}
+
+class LedgerStore <<Singleton>> {
+  +GetDBInstance() : *LedgerStore
+  +SaveAccount(acct) : error
+  +ApplyDebit(entry) : (float64, error)
+}
+
+interface AccountCreator {
+  +CreateAccount(id) : Account
+}
+
+interface Account {
+  +GetID() : string
+  +GetType() : string
+  +GetTitle() : string
+  +CreditLimit() : float64
+  +MaxTransfer() : float64
+}
+
+class CheckingCreator
+class SavingsCreator
+class CreditCreator
+
+interface InterestStrategy {
+  +CalculateInterest(balance) : float64
+}
+
+class CheckingStrategy
+class SavingsStrategy
+class LoanStrategy
+
+class InterestContext {
+  +SetStrategy(s)
+  +ExecuteStrategy(balance) : float64
+}
+
+interface LoanBuilder {
+  +SetBorrower(name) : LoanBuilder
+  +SetAmount(amount) : LoanBuilder
+  +SetTerms() : LoanBuilder
+  +Build() : (*LoanAgreement, error)
+}
+
+class StandardLoanBuilder
+class LoanAgreement
+
+class LoanDirector {
+  +ConstructStandardLoan(b, borrower, amount)
+}
+
+interface Observer {
+  +Update(e *TransactionEvent)
+}
+
+class TransactionMonitor {
+  +AddObserver(o)
+  +RemoveObserver(o)
+  +Notify(e)
+  +ProcessTransaction(amount, accID)
+}
+
+class FraudDetector
+class AuditLogger
+class SecurityTeamAlert
+
+AccountCreator <|.. CheckingCreator
+AccountCreator <|.. SavingsCreator
+AccountCreator <|.. CreditCreator
+AccountCreator ..> Account : creates
+
+InterestStrategy <|.. CheckingStrategy
+InterestStrategy <|.. SavingsStrategy
+InterestStrategy <|.. LoanStrategy
+InterestContext o--> InterestStrategy
+
+LoanBuilder <|.. StandardLoanBuilder
+StandardLoanBuilder ..> LoanAgreement : builds
+LoanDirector --> LoanBuilder
+
+Observer <|.. FraudDetector
+Observer <|.. AuditLogger
+Observer <|.. SecurityTeamAlert
+TransactionMonitor o--> Observer
+
+BankFacade --> LedgerStore
+BankFacade --> AccountCreator
+BankFacade --> InterestContext
+BankFacade --> LoanDirector
+BankFacade --> TransactionMonitor
+@enduml

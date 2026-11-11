@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Banking System JSON Database Schema",
+  "description": "Schema for data/database.json managed by LedgerStore (internal/db/singleton.go)",
+  "type": "object",
+  "required": ["loans", "transactions", "accounts"],
+  "properties": {
+    "accounts": {
+      "type": "object",
+      "description": "Map of account ID to AccountData",
+      "additionalProperties": {
+        "$ref": "#/$defs/AccountData"
+      }
+    },
+    "loans": {
+      "type": "object",
+      "description": "Map of '<loanNumber>_<borrower>' to LoanData",
+      "additionalProperties": {
+        "$ref": "#/$defs/LoanData"
+      }
+    },
+    "transactions": {
+      "type": "object",
+      "description": "Map of account ID to chronological list of TransactionRecord entries",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/TransactionRecord"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "AccountData": {
+      "type": "object",
+      "required": ["id", "type", "balance", "created_at"],
+      "properties": {
+        "id": { "type": "string", "minLength": 2, "maxLength": 24 },
+        "type": { "type": "string", "enum": ["checking", "savings", "credit"] },
+        "balance": { "type": "number" },
+        "credit_limit": { "type": "number", "minimum": 0 },
+        "created_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "LoanData": {
+      "type": "object",
+      "required": ["number", "borrower", "amount", "rate", "months", "monthly", "total", "date"],
+      "properties": {
+        "number": { "type": "string", "pattern": "^LN-[0-9]{6}$" },
+        "borrower": { "type": "string", "minLength": 2 },
+        "amount": { "type": "number", "minimum": 100, "maximum": 500000 },
+        "rate": { "type": "number", "exclusiveMinimum": 0, "maximum": 45 },
+        "months": { "type": "integer", "minimum": 3, "maximum": 120 },
+        "monthly": { "type": "number", "exclusiveMinimum": 0 },
+        "total": { "type": "number", "exclusiveMinimum": 0 },
+        "date": { "type": "string", "format": "date-time" }
+      }
+    },
+    "TransactionRecord": {
+      "type": "object",
+      "required": ["account_id", "name", "amount", "income", "suspicious", "date"],
+      "properties": {
+        "account_id": { "type": "string", "minLength": 2 },
+        "name": { "type": "string" },
+        "amount": { "type": "number", "exclusiveMinimum": 0 },
+        "income": { "type": "boolean" },
+        "suspicious": { "type": "boolean" },
+        "reason": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
