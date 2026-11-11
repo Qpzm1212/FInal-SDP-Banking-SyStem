@@ -2,40 +2,61 @@ package patterns
 
 import (
 	"errors"
+	"math"
 	"testing"
 )
 
 func TestStrategySelection(t *testing.T) {
-	s, err := GetStrategy("savings")
-	if err != nil || s.CalculateInterest(1000) != 50 {
-		t.Fatalf("savings: want 50, got err=%v", err)
+	s, err := GetStrategy("checking")
+	if err != nil || s.CalculateInterest(1000) != 0 {
+		t.Fatalf("checking: expected 0, got err=%v", err)
 	}
-	s, _ = GetStrategy("loan")
-	if s.CalculateInterest(1000) != 150 {
-		t.Fatal("loan: want 150")
+	s, err = GetStrategy("savings")
+	if err != nil || s.CalculateInterest(1000) != 50 {
+		t.Fatalf("savings: expected 50, got err=%v", err)
+	}
+	for _, name := range []string{"credit", "loan"} {
+		s, err = GetStrategy(name)
+		if err != nil || s.CalculateInterest(1000) != 150 {
+			t.Fatalf("%s: expected 150, got err=%v", name, err)
+		}
 	}
 	if _, err := GetStrategy("savngs"); !errors.Is(err, ErrInvalidInput) {
 		t.Fatal("unknown type must return ErrInvalidInput")
 	}
 }
 
-func TestBuilderValidation(t *testing.T) {
+func TestBuilderValidationAndPayments(t *testing.T) {
 	loan, err := LoanDirector{}.ConstructStandardLoan(NewStandardLoanBuilder(), "Ali", 5000)
-	if err != nil || loan.Rate != StandardLoanRatePercent || loan.Months != 12 {
-		t.Fatalf("bad loan: %+v err=%v", loan, err)
+	if err != nil || loan.Rate != StandardLoanRatePercent || loan.Months != DefaultLoanMonths {
+		t.Fatalf("unexpected loan: %+v err=%v", loan, err)
 	}
-	if _, err := NewStandardLoanBuilder().SetBorrower("").SetAmount(100).SetTerms().Build(); err == nil {
+	if math.Abs(loan.Monthly-451.29) > 0.02 {
+		t.Fatalf("monthly payment: got %.2f", loan.Monthly)
+	}
+	if math.Abs(loan.Total-loan.Monthly*12) > 0.1 || loan.Number == "" {
+		t.Fatalf("bad total or number: %+v", loan)
+	}
+	if _, err := NewStandardLoanBuilder().SetBorrower("").SetAmount(500).SetTerms().Build(); err == nil {
 		t.Fatal("empty borrower must fail")
 	}
-	if _, err := NewStandardLoanBuilder().SetBorrower("Ali").SetAmount(-1).SetTerms().Build(); err == nil {
-		t.Fatal("negative amount must fail")
+	if _, err := NewStandardLoanBuilder().SetBorrower("A").SetAmount(500).SetTerms().Build(); err == nil {
+		t.Fatal("1-char borrower must fail")
+	}
+	if _, err := NewStandardLoanBuilder().SetBorrower("Ali").SetAmount(50).SetTerms().Build(); err == nil {
+		t.Fatal("below-minimum loan must fail")
+	}
+	if _, err := NewStandardLoanBuilder().SetBorrower("Ali").SetAmount(900000).SetTerms().Build(); err == nil {
+		t.Fatal("above-maximum loan must fail")
 	}
 }
 
 func TestFactoryMethod(t *testing.T) {
-	a, err := CreateAccount("savings", "A1")
-	if err != nil || a.GetType() != "savings" {
-		t.Fatalf("savings: %v %v", a, err)
+	for _, typ := range []string{"checking", "savings", "credit"} {
+		a, err := CreateAccount(typ, "A1")
+		if err != nil || a.GetType() != typ {
+			t.Fatalf("%s: %v %v", typ, a, err)
+		}
 	}
 	if _, err := CreateAccount("gold", "A2"); err == nil {
 		t.Fatal("unknown type must fail")
@@ -43,31 +64,45 @@ func TestFactoryMethod(t *testing.T) {
 	if _, err := CreateAccount("checking", " "); err == nil {
 		t.Fatal("empty id must fail")
 	}
+	if _, err := CreateAccount("checking", "bad id!"); err == nil {
+		t.Fatal("invalid id format must fail")
+	}
 }
 
-type spy struct{ got []*TransactionEvent }
+type spyObserver struct {
+	got []*TransactionEvent
+}
 
-func (s *spy) Update(e *TransactionEvent) { s.got = append(s.got, e) }
+func (s *spyObserver) Update(e *TransactionEvent) {
+	s.got = append(s.got, e)
+}
 
-func TestObserverNotifiesAll(t *testing.T) {
+func TestObserverNotifiesAndDetectsVelocity(t *testing.T) {
 	m := NewTransactionMonitor()
-	s := &spy{}
+	spy := &spyObserver{}
 	m.AddObserver(&FraudDetector{Threshold: FraudThreshold})
-	m.AddObserver(s)
+	m.AddObserver(spy)
 
 	if e := m.ProcessTransaction(500, "A1"); e.Suspicious {
 		t.Fatal("small amount must not be suspicious")
 	}
-	if e := m.ProcessTransaction(20000, "A1"); !e.Suspicious {
-		t.Fatal("large amount must be suspicious")
+	if e := m.ProcessTransaction(20000, "A1"); !e.Suspicious || e.Reason == "" {
+		t.Fatal("large amount must be flagged with reason")
 	}
-	if len(s.got) != 2 {
-		t.Fatalf("observer must get every event, got %d", len(s.got))
+	// Trigger velocity rule on a separate account with small transfers (>3 inside 1 min)
+	for i := 0; i < 3; i++ {
+		if e := m.ProcessTransaction(100, "VEL-1"); e.Suspicious {
+			t.Fatalf("transfer %d should not trigger velocity yet", i+1)
+		}
+	}
+	if e := m.ProcessTransaction(100, "VEL-1"); !e.Suspicious {
+		t.Fatal("4th rapid transfer must trigger velocity check")
 	}
 
-	m.RemoveObserver(s)
+	prevCount := len(spy.got)
+	m.RemoveObserver(spy)
 	m.ProcessTransaction(1, "A1")
-	if len(s.got) != 2 {
+	if len(spy.got) != prevCount {
 		t.Fatal("removed observer must not be notified")
 	}
 }

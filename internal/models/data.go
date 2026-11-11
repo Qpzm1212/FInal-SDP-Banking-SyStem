@@ -2,27 +2,32 @@ package models
 
 import "time"
 
-// AccountData - запись о счете в хранилище.
-// Type хранит КОД типа ("checking" / "savings"), а не текст для интерфейса.
+// Type can be "checking", "savings", or "credit".
 type AccountData struct {
-	ID        string
-	Type      string
-	CreatedAt time.Time
+	ID          string    `json:"id"`
+	Type        string    `json:"type"`
+	Balance     float64   `json:"balance"`
+	CreditLimit float64   `json:"credit_limit,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
-// LoanData - запись о кредите.
 type LoanData struct {
-	Borrower string
-	Amount   float64
-	Rate     float64
-	Months   int
-	Date     time.Time
+	Number   string    `json:"number"`
+	Borrower string    `json:"borrower"`
+	Amount   float64   `json:"amount"`
+	Rate     float64   `json:"rate"`
+	Months   int       `json:"months"`
+	Monthly  float64   `json:"monthly"`
+	Total    float64   `json:"total"`
+	Date     time.Time `json:"date"`
 }
 
-// TransactionRecord - запись о транзакции.
 type TransactionRecord struct {
-	AccountID  string
-	Amount     float64
-	Suspicious bool
-	Date       time.Time
+	AccountID  string    `json:"account_id"`
+	Name       string    `json:"name"`
+	Amount     float64   `json:"amount"`
+	Income     bool      `json:"income"`
+	Suspicious bool      `json:"suspicious"`
+	Reason     string    `json:"reason,omitempty"`
+	Date       time.Time `json:"date"`
 }

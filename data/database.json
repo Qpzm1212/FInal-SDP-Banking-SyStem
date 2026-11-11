@@ -1,0 +1,102 @@
+{
+  "loans": {
+    "LN-946549_df": {
+      "number": "LN-946549",
+      "borrower": "df",
+      "amount": 5000,
+      "rate": 15,
+      "months": 12,
+      "monthly": 451.29,
+      "total": 5415.5,
+      "date": "2026-11-10T10:17:17.946549189+05:00"
+    }
+  },
+  "transactions": {
+    "ACC-1": [
+      {
+        "account_id": "ACC-1",
+        "name": "Coffee Shop",
+        "amount": 6.8,
+        "income": false,
+        "suspicious": false,
+        "date": "2026-11-06T10:16:25.6774982+05:00"
+      },
+      {
+        "account_id": "ACC-1",
+        "name": "Taxi",
+        "amount": 12.5,
+        "income": false,
+        "suspicious": false,
+        "date": "2026-11-07T10:16:25.6774982+05:00"
+      },
+      {
+        "account_id": "ACC-1",
+        "name": "Salary",
+        "amount": 3200,
+        "income": true,
+        "suspicious": false,
+        "date": "2026-11-08T10:16:25.6774982+05:00"
+      },
+      {
+        "account_id": "ACC-1",
+        "name": "Alma Store",
+        "amount": 84.2,
+        "income": false,
+        "suspicious": false,
+        "date": "2026-11-10T03:16:25.6774982+05:00"
+      },
+      {
+        "account_id": "ACC-1",
+        "name": "Transfer",
+        "amount": 2222,
+        "income": false,
+        "suspicious": false,
+        "date": "2026-11-10T10:17:07.601367094+05:00"
+      },
+      {
+        "account_id": "ACC-1",
+        "name": "Transfer",
+        "amount": 23456,
+        "income": false,
+        "suspicious": true,
+        "date": "2026-11-10T10:17:45.347728383+05:00"
+      }
+    ],
+    "ACC-2": [
+      {
+        "account_id": "ACC-2",
+        "name": "Savings Reward",
+        "amount": 52,
+        "income": true,
+        "suspicious": false,
+        "date": "2026-11-04T10:16:25.6774982+05:00"
+      }
+    ]
+  },
+  "accounts": {
+    "ACC-1": {
+      "id": "ACC-1",
+      "type": "checking",
+      "balance": 22572.75,
+      "created_at": "2026-10-11T10:16:25.6774982+05:00"
+    },
+    "ACC-2": {
+      "id": "ACC-2",
+      "type": "savings",
+      "balance": 12400,
+      "created_at": "2026-10-12T10:16:25.6774982+05:00"
+    },
+    "ACC-45": {
+      "id": "ACC-45",
+      "type": "checking",
+      "balance": 0,
+      "created_at": "2026-11-10T10:16:47.188223446+05:00"
+    },
+    "ACC-454": {
+      "id": "ACC-454",
+      "type": "savings",
+      "balance": 0,
+      "created_at": "2026-11-10T10:20:23.168807306+05:00"
+    }
+  }
+}

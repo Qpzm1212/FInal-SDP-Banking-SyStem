@@ -2,5 +2,5 @@ package patterns
 
 import "errors"
 
-// ErrInvalidInput - общая ошибка валидации (API превращает её в HTTP 400).
-var ErrInvalidInput = errors.New("некорректные данные")
+// Validation error mapped to HTTP 400 in cmd/api/main.go.
+var ErrInvalidInput = errors.New("invalid data")
